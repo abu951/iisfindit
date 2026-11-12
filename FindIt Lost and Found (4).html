@@ -1,0 +1,1045 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>FindIt Lost and Found</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout concept: a school lost-property room. Every item is a luggage tag with a mono ID, a punched hole and a FOUND (sun) or LOST (coral) stamp. Teal ground, one bold hero headline, quiet everything else. */
+:root {
+  --bg: #F2F7F8;
+  --surface: #FFFFFF;
+  --surface-2: #E7F0F2;
+  --ink: #0E2A33;
+  --muted: #4B6770;
+  --line: #CFDFE3;
+  --accent: #0A7482;
+  --accent-ink: #FFFFFF;
+  --sun: #FFC83D;
+  --sun-ink: #3A2A00;
+  --coral: #D8452F;
+  --coral-ink: #FFFFFF;
+  --ok: #1F7A4D;
+  --leaf: #3BA55D;
+  --shadow: 0 1px 0 rgba(14,42,51,.06), 0 6px 20px -10px rgba(14,42,51,.25);
+  --f-display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0A191E; --surface: #112830; --surface-2: #17343D; --ink: #E7F3F5; --muted: #9DB8BF; --line: #24444D;
+    --accent: #4FC3D3; --accent-ink: #04181C; --sun: #FFD25E; --sun-ink: #2B1F00; --coral: #FF8470; --coral-ink: #2A0A04; --ok: #5FD39A; --leaf: #5FD39A;
+    --shadow: 0 1px 0 rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0A191E; --surface: #112830; --surface-2: #17343D; --ink: #E7F3F5; --muted: #9DB8BF; --line: #24444D;
+  --accent: #4FC3D3; --accent-ink: #04181C; --sun: #FFD25E; --sun-ink: #2B1F00; --coral: #FF8470; --coral-ink: #2A0A04; --ok: #5FD39A; --leaf: #5FD39A;
+  --shadow: 0 1px 0 rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: auto; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.55; }
+h1, h2, h3 { font-family: var(--f-display); line-height: 1.08; margin: 0; text-wrap: balance; letter-spacing: -.015em; }
+h1 { font-size: clamp(2.3rem, 6.4vw, 4.4rem); font-weight: 800; }
+h2 { font-size: clamp(1.7rem, 3.8vw, 2.5rem); font-weight: 800; }
+h3 { font-size: 1.15rem; font-weight: 700; }
+p { margin: 0; }
+a { color: var(--accent); }
+.wrap { width: min(1120px, 100%); margin-inline: auto; padding-inline: clamp(16px, 4vw, 32px); }
+.eyebrow { font-family: var(--f-mono); font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.lead { font-size: 1.15rem; color: var(--muted); max-width: 60ch; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+/* header */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); border-bottom: 1px solid var(--line); }
+.top .wrap { display: flex; align-items: center; gap: 16px; padding-block: 10px; flex-wrap: wrap; }
+.brand { font-family: var(--f-display); font-weight: 800; font-size: 1.4rem; text-decoration: none; color: var(--ink); display: flex; align-items: center; gap: 8px; letter-spacing: -.02em; }
+.brand .mark { width: 44px; height: 44px; flex: none; }
+.brand .it { color: var(--accent); }
+.nav { display: flex; gap: 4px; margin-left: auto; overflow-x: auto; max-width: 100%; scrollbar-width: none; }
+.nav a { color: var(--ink); text-decoration: none; padding: 8px 12px; border-radius: 8px; font-size: .95rem; white-space: nowrap; }
+.nav a:hover { background: var(--surface-2); }
+.nav a.cta { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.banner { background: var(--sun); color: var(--sun-ink); font-weight: 700; padding-block: 10px; }
+
+/* buttons & form controls */
+.btn { font: inherit; font-weight: 700; cursor: pointer; border: 2px solid var(--ink); background: var(--surface); color: var(--ink); padding: 10px 18px; border-radius: 10px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
+.btn:hover { background: var(--surface-2); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.small { min-height: 38px; padding: 6px 12px; font-size: .9rem; border-width: 1.5px; }
+.btn.danger { border-color: var(--coral); color: var(--coral); }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+label, .lbl { font-weight: 700; font-size: .95rem; display: block; margin-bottom: 6px; }
+.hint { color: var(--muted); font-size: .88rem; margin-top: 4px; }
+input, select, textarea { font: inherit; color: var(--ink); background: var(--surface); border: 2px solid var(--line); border-radius: 10px; padding: 10px 12px; width: 100%; min-height: 44px; }
+input:hover, select:hover, textarea:hover { border-color: var(--muted); }
+textarea { min-height: 96px; resize: vertical; }
+[aria-invalid="true"] { border-color: var(--coral); }
+.err { color: var(--coral); font-size: .88rem; margin-top: 4px; font-weight: 700; }
+
+/* hero */
+.hero { padding-block: clamp(32px, 6vw, 72px) clamp(32px, 5vw, 56px); }
+.hero .wrap { display: grid; grid-template-columns: 1.25fr 1fr; gap: clamp(24px, 5vw, 56px); align-items: center; }
+.hero h1 em { font-style: normal; background: var(--sun); color: var(--sun-ink); padding: 0 .12em; border-radius: 6px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.hero .lead { margin-top: 20px; }
+.hero .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.stats { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 32px; padding-top: 20px; border-top: 2px solid var(--ink); }
+.stat b { font-family: var(--f-display); font-size: 2rem; font-weight: 800; display: block; line-height: 1; font-variant-numeric: tabular-nums; }
+.stat span { font-size: .85rem; color: var(--muted); }
+.board { background: var(--surface); border: 2px solid var(--ink); border-radius: 14px; padding: 18px; box-shadow: var(--shadow); min-width: 0; }
+.board h2 { font-size: 1.1rem; font-family: var(--f-mono); font-weight: 500; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 12px; }
+.board ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.board li button { width: 100%; text-align: left; font: inherit; color: inherit; background: var(--bg); border: 1.5px solid var(--line); border-radius: 10px; padding: 8px 10px; display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: center; cursor: pointer; min-height: 56px; }
+.board li button:hover { border-color: var(--accent); }
+.board .t { font-weight: 700; line-height: 1.25; }
+.board .m { font-size: .85rem; color: var(--muted); }
+.board .none { color: var(--muted); padding: 8px 2px; }
+.ico { width: 40px; height: 40px; display: block; color: var(--muted); }
+
+/* sections */
+section { padding-block: clamp(40px, 6vw, 80px); }
+.alt { background: var(--surface-2); }
+.sec-head { display: grid; gap: 12px; margin-bottom: 32px; max-width: 68ch; }
+
+/* problem */
+.problem { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.problem article { background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 20px; min-width: 0; }
+.problem article h3 { margin-bottom: 8px; }
+.problem article p { color: var(--muted); }
+
+/* steps */
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; counter-reset: s; list-style: none; padding: 0; margin: 0; }
+.steps li { counter-increment: s; background: var(--surface); border: 2px solid var(--ink); border-radius: 14px; padding: 20px; position: relative; min-width: 0; }
+.steps li::before { content: counter(s); font-family: var(--f-mono); font-weight: 500; width: 34px; height: 34px; border-radius: 50%; background: var(--sun); color: var(--sun-ink); display: grid; place-items: center; margin-bottom: 12px; }
+.steps li p { color: var(--muted); margin-top: 6px; }
+
+/* browse */
+.tools { display: grid; grid-template-columns: 1fr auto; gap: 12px 16px; align-items: end; margin-bottom: 16px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.chip { font: inherit; font-size: .92rem; cursor: pointer; background: var(--surface); color: var(--ink); border: 1.5px solid var(--line); border-radius: 999px; padding: 6px 14px; min-height: 40px; }
+.chip:hover { border-color: var(--accent); }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.switch { display: flex; align-items: center; gap: 8px; font-weight: 400; margin: 0; min-height: 44px; }
+.switch input { width: 20px; height: 20px; min-height: 0; accent-color: var(--accent); }
+.count { color: var(--muted); font-size: .95rem; margin-bottom: 12px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 18px; }
+.tag { background: var(--surface); border: 2px solid var(--ink); border-radius: 6px 18px 18px 6px; padding: 18px 18px 16px 52px; position: relative; display: grid; gap: 10px; align-content: start; min-width: 0; box-shadow: var(--shadow); }
+.tag::before { content: ""; position: absolute; left: 16px; top: 18px; width: 18px; height: 18px; border-radius: 50%; background: var(--bg); border: 2px solid var(--ink); }
+.tag::after { content: ""; position: absolute; left: 24px; top: 36px; bottom: 14px; border-left: 2px dashed var(--line); }
+.tag.done { opacity: .62; }
+.tag-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.tid { font-family: var(--f-mono); font-size: .85rem; color: var(--muted); }
+.stamp { font-family: var(--f-mono); font-weight: 500; font-size: .75rem; letter-spacing: .1em; padding: 3px 8px; border-radius: 4px; border: 1.5px solid currentColor; text-transform: uppercase; }
+.stamp.found { background: var(--sun); color: var(--sun-ink); border-color: var(--sun-ink); }
+.stamp.lost { background: var(--coral); color: var(--coral-ink); border-color: var(--coral); }
+.tag-main { display: grid; grid-template-columns: 52px 1fr; gap: 12px; align-items: center; }
+.tag-main .ico { width: 52px; height: 52px; }
+.tag h3 { font-size: 1.05rem; }
+.facts { margin: 0; display: grid; gap: 2px; font-size: .92rem; }
+.facts div { display: flex; gap: 8px; }
+.facts dt { color: var(--muted); min-width: 4.4rem; }
+.facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.pill { display: inline-block; font-size: .8rem; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); }
+.pill[hidden] { display: none; }
+.pill.pending { background: var(--sun); color: var(--sun-ink); border-color: var(--sun-ink); }
+.pill.ret { background: var(--ok); color: var(--bg); border-color: var(--ok); }
+.acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.staffbox { background: var(--surface-2); border-radius: 8px; padding: 8px 10px; font-size: .88rem; overflow-wrap: anywhere; }
+.empty { border: 2px dashed var(--muted); border-radius: 14px; padding: 36px 20px; text-align: center; color: var(--muted); grid-column: 1 / -1; }
+
+/* report */
+.report { display: grid; grid-template-columns: 1.3fr 1fr; gap: clamp(20px, 4vw, 44px); align-items: start; }
+.form { background: var(--surface); border: 2px solid var(--ink); border-radius: 14px; padding: clamp(16px, 3vw, 28px); display: grid; gap: 18px; min-width: 0; box-shadow: var(--shadow); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.seg { display: grid; grid-template-columns: 1fr 1fr; border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; }
+.seg input { position: absolute; opacity: 0; width: 1px; height: 1px; min-height: 0; }
+.seg label { margin: 0; text-align: center; padding: 12px 8px; cursor: pointer; font-weight: 700; min-height: 48px; display: grid; place-items: center; }
+.seg input:checked + label { background: var(--ink); color: var(--bg); }
+.seg input:focus-visible + label { outline: 3px solid var(--accent); outline-offset: -4px; }
+.side { display: grid; gap: 16px; min-width: 0; }
+.note { background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 16px; }
+.note h3 { margin-bottom: 6px; }
+.note p, .note li { color: var(--muted); }
+.note ul { margin: 6px 0 0; padding-left: 18px; }
+.result { background: var(--surface); border: 2px solid var(--ok); border-radius: 14px; padding: 18px; display: grid; gap: 12px; }
+.result .tid { color: var(--ink); font-size: 1rem; }
+.match { display: grid; grid-template-columns: 40px 1fr auto; gap: 10px; align-items: center; background: var(--bg); border: 1.5px solid var(--line); border-radius: 10px; padding: 8px 10px; min-width: 0; }
+.match .t { font-weight: 700; line-height: 1.25; }
+.match .m { font-size: .85rem; color: var(--muted); }
+
+/* photos */
+.photo-btn { padding: 0; border: 0; background: none; cursor: zoom-in; display: block; width: 100%; border-radius: 10px; }
+.photo { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px; border: 1.5px solid var(--line); display: block; background: var(--surface-2); }
+.thumb { width: 40px; height: 40px; object-fit: cover; border-radius: 8px; border: 1.5px solid var(--line); display: block; background: var(--surface-2); }
+.drop { border: 2px dashed var(--muted); border-radius: 12px; padding: 14px; display: grid; gap: 12px; background: var(--bg); }
+.drop .acts input { position: absolute; width: 1px; height: 1px; opacity: 0; min-height: 0; }
+.drop .acts input:focus-visible + label { outline: 3px solid var(--accent); outline-offset: 2px; }
+.drop label.btn { margin: 0; }
+.drop-prev { display: grid; grid-template-columns: 96px 1fr; gap: 12px; align-items: center; min-width: 0; }
+.drop-prev[hidden] { display: none; }
+.drop-prev img { width: 96px; height: 96px; object-fit: cover; border-radius: 10px; border: 1.5px solid var(--line); display: block; }
+.lb-img { width: 100%; max-height: 60vh; object-fit: contain; border-radius: 10px; background: var(--surface-2); display: block; }
+
+/* prevent */
+.tips { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 18px; }
+.tips article { border-top: 3px solid var(--ink); padding-top: 12px; min-width: 0; }
+.tips p { color: var(--muted); margin-top: 6px; }
+
+/* about */
+.about { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(20px, 4vw, 48px); }
+.about dl { margin: 0; display: grid; gap: 16px; }
+.about dt { font-family: var(--f-mono); font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.about dd { margin: 2px 0 0; }
+.roles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; list-style: none; padding: 0; margin: 0; }
+.roles li { background: var(--surface); border: 1.5px solid var(--line); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+.roles b { display: block; }
+.roles span { color: var(--muted); font-size: .9rem; }
+
+footer { border-top: 2px solid var(--ink); padding-block: 28px 40px; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 24px; justify-content: space-between; align-items: center; }
+footer p { color: var(--muted); font-size: .92rem; }
+
+/* dialog & toast */
+dialog { border: 2px solid var(--ink); border-radius: 16px; padding: 0; background: var(--surface); color: var(--ink); width: min(520px, calc(100% - 32px)); max-height: calc(100% - 32px); overflow: auto; }
+dialog::backdrop { background: rgba(5, 20, 25, .6); }
+.dlg { padding: 22px; display: grid; gap: 16px; }
+.ticket { border: 2px dashed var(--ink); border-radius: 12px; padding: 16px; display: grid; gap: 6px; background: var(--bg); }
+.ticket .code { font-family: var(--f-mono); font-size: 1.8rem; font-weight: 500; letter-spacing: .06em; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: 10px; font-weight: 700; z-index: 50; max-width: calc(100% - 32px); box-shadow: var(--shadow); }
+
+@media (max-width: 860px) {
+  .hero .wrap, .report, .about { grid-template-columns: 1fr; }
+  .problem, .steps { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .row2, .roles { grid-template-columns: 1fr; }
+  .tools { grid-template-columns: 1fr; }
+  .nav { margin-left: 0; width: 100%; }
+}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="FindIt home">
+      <svg class="mark" viewBox="0 0 256 256" aria-hidden="true">
+        <defs><clipPath id="logoGlobe"><circle cx="110" cy="110" r="70"/></clipPath></defs>
+        <g transform="translate(178 178) rotate(45)">
+          <path fill-rule="evenodd" d="M0 -26H64Q76 -26 76 -14V14Q76 26 64 26H0L-18 0Z M60 -8a8 8 0 1 0 .01 0Z" fill="var(--sun)" stroke="var(--ink)" stroke-width="8" stroke-linejoin="round"/>
+          <path d="M22 -12H44M22 0H44M22 12H36" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" opacity=".55"/>
+        </g>
+        <circle cx="110" cy="110" r="70" fill="var(--accent)"/>
+        <g clip-path="url(#logoGlobe)" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="3">
+          <ellipse cx="110" cy="110" rx="32" ry="70"/><ellipse cx="110" cy="110" rx="70" ry="28"/><path d="M40 110H180"/>
+        </g>
+        <path d="M110 62C110 62 82 93 82 114a28 28 0 0 0 56 0C138 93 110 62 110 62Z" fill="#fff"/>
+        <path d="M96 116c0 9 6 16 14 16" fill="none" stroke="var(--accent)" stroke-width="5" stroke-linecap="round" opacity=".5"/>
+        <path d="M62 78A58 58 0 0 1 96 54" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="110" cy="110" r="76" fill="none" stroke="var(--ink)" stroke-width="12"/>
+        <path d="M156 40C182 30 204 42 204 70C176 76 154 66 156 40Z" fill="var(--leaf)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round"/>
+        <path d="M162 48C176 54 190 62 198 68" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none" opacity=".55"/>
+      </svg>
+      Find<span class="it">It</span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#how">How it works</a>
+      <a href="#browse">Browse</a>
+      <a href="#prevent">Label it</a>
+      <a href="#about">The project</a>
+      <a href="#report" class="cta">Report an item</a>
+    </nav>
+  </div>
+</header>
+<div class="banner" id="banner" role="status" hidden><div class="wrap" id="bannerText"></div></div>
+
+<main id="top">
+  <div class="hero">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">School Lost &amp; Found</p>
+        <h1 style="margin-top:12px">Lost your water bottle? <em>Find it</em> in a minute.</h1>
+        <p class="lead">Every week, bottles get left in the canteen, on the playground and on the bus. FindIt puts every found item and every lost report in one place, so bottles get back to the people who need them.</p>
+        <div class="actions">
+          <a class="btn primary" href="#report">I lost something</a>
+          <a class="btn" href="#browse">Browse found items</a>
+        </div>
+        <div class="stats" id="stats" aria-live="polite"></div>
+      </div>
+      <aside class="board" aria-labelledby="jf">
+        <h2 id="jf">Just found</h2>
+        <ul id="justFound"></ul>
+      </aside>
+    </div>
+  </div>
+
+  <section class="alt" id="problem">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">The problem</p>
+        <h2>Water bottles disappear every day, and nobody knows where they went.</h2>
+        <p class="lead">In the UAE heat students need to drink all day. A lost bottle means thirsty lessons, a replacement bought, and one more bottle that ends up in the bin.</p>
+      </div>
+      <div class="problem">
+        <article><h3>They all look alike</h3><p>Dozens of blue and silver bottles sit on the same shelf. Without a name or a sticker, nobody can prove which one is theirs.</p></article>
+        <article><h3>There is no single place to look</h3><p>Items end up in the canteen, the playground, the bus bay and the office. Students give up before they have checked them all.</p></article>
+        <article><h3>Lost things become waste</h3><p>Bottles left for weeks are thrown away, and families buy new ones. Reuse is better for money and for the planet.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">How it works</p>
+        <h2>Three steps from lost to returned</h2>
+      </div>
+      <ol class="steps">
+        <li><h3>Report it</h3><p>Lost something? Tell us what it looks like and where you last had it. Found something? Add it with a photo and hand it to the Front Office.</p></li>
+        <li><h3>Match it</h3><p>FindIt compares new reports with items already on the board and suggests the closest matches by type, colour and place.</p></li>
+        <li><h3>Claim it</h3><p>Press "This is mine", describe one detail only the owner knows, and get a claim ticket. Show it at the Front Office to collect your item.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="alt" id="browse">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">The board</p>
+        <h2>Browse found items and lost reports</h2>
+      </div>
+      <div class="tools">
+        <div>
+          <label for="q">Search by colour, brand, place or tag ID</label>
+          <input id="q" type="search" placeholder="e.g. blue, canteen, FI-7K2Q" autocomplete="off">
+        </div>
+        <div>
+          <label for="kind">Show</label>
+          <select id="kind">
+            <option value="all">Found and lost</option>
+            <option value="found">Found items only</option>
+            <option value="lost">Lost reports only</option>
+          </select>
+        </div>
+      </div>
+      <div class="chips" id="chips" role="group" aria-label="Filter by item type"></div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px 24px">
+        <label class="switch" for="hideDone"><input type="checkbox" id="hideDone" checked> Hide items already returned</label>
+        <label class="switch" for="onlyPhoto"><input type="checkbox" id="onlyPhoto"> Only items with photos</label>
+      </div>
+      <p class="count" id="count" aria-live="polite"></p>
+      <div class="grid" id="grid"></div>
+    </div>
+  </section>
+
+  <section id="report">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Report</p>
+        <h2>Tell us what you lost or found</h2>
+        <p class="lead">It takes about a minute. Use your first name and class only. Never write phone numbers or home addresses.</p>
+      </div>
+      <div class="report">
+        <form class="form" id="form" novalidate>
+          <div>
+            <span class="lbl" id="kindLbl">What are you reporting?</span>
+            <div class="seg" role="radiogroup" aria-labelledby="kindLbl">
+              <input type="radio" name="rk" id="rk-lost" value="lost" checked><label for="rk-lost">I lost something</label>
+              <input type="radio" name="rk" id="rk-found" value="found"><label for="rk-found">I found something</label>
+            </div>
+          </div>
+          <div class="row2">
+            <div>
+              <label for="f-type">Item type</label>
+              <select id="f-type" required>
+                <option value="bottle">Water bottle</option>
+                <option value="lunch">Lunch box</option>
+                <option value="clothes">Jumper or jacket</option>
+                <option value="stationery">Pencil case or stationery</option>
+                <option value="idcard">ID card</option>
+                <option value="other">Something else</option>
+              </select>
+            </div>
+            <div>
+              <label for="f-color">Main colour</label>
+              <select id="f-color" required></select>
+            </div>
+          </div>
+          <div id="specWrap" hidden>
+            <label for="f-spec">Please specify what it is</label>
+            <input id="f-spec" type="text" maxlength="40" placeholder="e.g. calculator, hat, glasses" autocomplete="off">
+            <p class="err" id="e-spec" role="alert"></p>
+          </div>
+          <div id="cardWrap" hidden>
+            <label for="f-card">Which card is it?</label>
+            <select id="f-card">
+              <option>Student ID card</option>
+              <option>Bus card</option>
+              <option>Library card</option>
+              <option>Other card</option>
+            </select>
+            <p class="hint">Do not type the full name or the ID number. Staff will check the card when it is handed in.</p>
+          </div>
+          <div>
+            <label for="f-brand">Brand <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+            <input id="f-brand" type="text" maxlength="30" placeholder="e.g. Hydro Flask, Contigo, no brand">
+          </div>
+          <div>
+            <label for="f-desc">What makes it easy to recognise?</label>
+            <textarea id="f-desc" maxlength="240" required placeholder="Stickers, dents, a strap, the shape of the lid"></textarea>
+            <p class="hint">Keep one secret detail to yourself, like a name inside the lid. The owner will need it to claim the item.</p>
+            <p class="err" id="e-desc" role="alert"></p>
+          </div>
+          <div>
+            <span class="lbl" id="photoLbl">Photo <span style="font-weight:400;color:var(--muted)">(optional, but it helps a lot)</span></span>
+            <div class="drop" role="group" aria-labelledby="photoLbl">
+              <div class="acts">
+                <input type="file" id="f-cam" accept="image/*" capture="environment">
+                <label class="btn small" for="f-cam">Take a photo</label>
+                <input type="file" id="f-file" accept="image/*">
+                <label class="btn small" for="f-file">Choose a photo</label>
+              </div>
+              <div class="drop-prev" id="photoPrev" hidden>
+                <img id="photoImg" alt="Preview of your photo">
+                <div><button class="btn small danger" type="button" id="photoClear">Remove photo</button></div>
+              </div>
+              <p class="hint" style="margin:0">Photograph the item on its own. Keep faces and name tags out of the picture.</p>
+              <p class="err" id="e-photo" role="alert" style="margin:0"></p>
+            </div>
+          </div>
+          <div class="row2">
+            <div>
+              <label for="f-place" id="placeLbl">Where did you last have it?</label>
+              <select id="f-place" required></select>
+            </div>
+            <div>
+              <label for="f-date">Date</label>
+              <input id="f-date" type="date" required>
+              <p class="err" id="e-date" role="alert"></p>
+            </div>
+          </div>
+          <div class="row2">
+            <div>
+              <label for="f-who">Your first name</label>
+              <input id="f-who" type="text" maxlength="20" required autocomplete="off">
+              <p class="err" id="e-who" role="alert"></p>
+            </div>
+            <div>
+              <label for="f-grade">Your class</label>
+              <input id="f-grade" type="text" maxlength="5" required placeholder="e.g. 5B" autocomplete="off">
+              <p class="err" id="e-grade" role="alert"></p>
+            </div>
+          </div>
+          <div>
+            <button class="btn primary" type="submit" id="submitBtn">Add to the board</button>
+            <p class="hint" id="writeNote" hidden></p>
+            <p class="err" id="submitStatus" role="alert"></p>
+            <p class="hint" id="connNote"></p>
+          </div>
+        </form>
+        <div class="side">
+          <div id="result" hidden></div>
+          <div class="note">
+            <h3>Found something?</h3>
+            <p>Add it here, then hand it to the Front Office and show your tag ID. Please do not keep found items in your bag or locker.</p>
+          </div>
+          <div class="note">
+            <h3>Lost something?</h3>
+            <ul>
+              <li>Check the board first. It may already be here.</li>
+              <li>Check again each morning. New items arrive daily.</li>
+              <li>Ask your class teacher if it has been a week.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="alt" id="prevent">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Stop it before it starts</p>
+        <h2>Four ways to keep your bottle yours</h2>
+      </div>
+      <div class="tips">
+        <article><h3>Write your name inside the lid</h3><p>A marker works on most lids. Names on the outside fade, so use the inside too.</p></article>
+        <article><h3>Add a sticker or strap</h3><p>One bright sticker makes your bottle different from the forty on the shelf.</p></article>
+        <article><h3>Take a quick photo at home</h3><p>A clear photo helps you describe it and helps staff recognise it.</p></article>
+        <article><h3>Do a "three-point check"</h3><p>Before you leave a room, check bottle, bag, jumper. It takes five seconds.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">ECOSPHERE 2026–27 · Grade 5 innovation project</p>
+        <h2>Why we built FindIt</h2>
+      </div>
+      <div class="about">
+        <dl>
+          <div><dt>Problem</dt><dd>Students often lose water bottles, lunch boxes and clothing, and there is no easy way to find them.</dd></div>
+          <div><dt>Solution</dt><dd>One shared board where found items and lost reports meet, with matching suggestions and a safe claim ticket.</dd></div>
+          <div><dt>Impact</dt><dd>Fewer replacement purchases, less waste, and more students with water when they need it. This supports the UN goal of responsible consumption (SDG 12).</dd></div>
+          <div><dt>Next steps</dt><dd>Run a trial with one grade, count returns each week, and share results with the school.</dd></div>
+        </dl>
+        <div>
+          <p class="lbl">Our team</p>
+          <p style="font-family:var(--f-display);font-size:1.6rem;font-weight:800;line-height:1.2;margin-bottom:20px">Abu, Fadel and Adam</p>
+          <p class="lbl">Team roles</p>
+          <ul class="roles">
+            <li><b>Researcher</b><span>Surveys students and counts lost items</span></li>
+            <li><b>Designer</b><span>Shapes the look and the tags</span></li>
+            <li><b>Builder</b><span>Makes the website work</span></li>
+            <li><b>Presenter</b><span>Shares the project with the school</span></li>
+          </ul>
+          <p class="hint" style="margin-top:14px">Reports and photos are shared with everyone who can open this page. Please use first names only.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>FindIt · Grade 5 ECOSPHERE 2026–27 innovation project · by Abu, Fadel and Adam</p>
+    <span class="pill pending" id="staffBadge" hidden>Staff tools on</span>
+  </div>
+</footer>
+
+<dialog id="claimDlg" aria-labelledby="cd-title">
+  <div class="dlg" id="cd-form">
+    <h3 id="cd-title">Claim this item</h3>
+    <p id="cd-item" class="hint"></p>
+    <form id="claimForm" novalidate style="display:grid;gap:14px">
+      <div>
+        <label for="c-detail">Describe one detail only the owner would know</label>
+        <textarea id="c-detail" maxlength="200" required placeholder="e.g. What is written inside the lid?"></textarea>
+        <p class="err" id="e-cdetail" role="alert"></p>
+      </div>
+      <div class="row2">
+        <div>
+          <label for="c-who">Your first name</label>
+          <input id="c-who" type="text" maxlength="20" required autocomplete="off">
+          <p class="err" id="e-cwho" role="alert"></p>
+        </div>
+        <div>
+          <label for="c-grade">Your class</label>
+          <input id="c-grade" type="text" maxlength="5" required placeholder="e.g. 5B" autocomplete="off">
+          <p class="err" id="e-cgrade" role="alert"></p>
+        </div>
+      </div>
+      <div class="acts">
+        <button class="btn primary" type="submit" id="claimBtn">Get my claim ticket</button>
+        <button class="btn" type="button" data-close>Cancel</button>
+      </div>
+    </form>
+  </div>
+  <div class="dlg" id="cd-ticket" hidden>
+    <h3>Your claim ticket</h3>
+    <div class="ticket">
+      <span class="eyebrow">Show this at the Front Office</span>
+      <span class="code" id="t-code"></span>
+      <span id="t-item"></span>
+      <span class="hint" id="t-who"></span>
+    </div>
+    <p class="hint">A staff member will check your detail against the item. If it matches, you can take your item home.</p>
+    <div class="acts"><button class="btn primary" type="button" data-close>Done</button></div>
+  </div>
+</dialog>
+
+<dialog id="photoDlg" aria-labelledby="lb-cap">
+  <div class="dlg">
+    <img class="lb-img" id="lbImg" alt="">
+    <p id="lb-cap" style="font-weight:700"></p>
+    <div class="acts"><button class="btn primary" type="button" data-close-photo>Close</button></div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(function () {
+  var TYPES = { bottle: 'water bottle', lunch: 'lunch box', clothes: 'jumper or jacket', stationery: 'pencil case or stationery', idcard: 'ID card', other: 'item' };
+  var CHIP_LABEL = { all: 'All items', bottle: 'Water bottles', lunch: 'Lunch boxes', clothes: 'Clothing', stationery: 'Stationery', idcard: 'ID cards', other: 'Other' };
+  var COLORS = { Blue: '#2F7FD8', Green: '#3BA55D', Red: '#D8452F', Pink: '#EE7FB0', Purple: '#8A5CD0', Black: '#26333A', Silver: '#B9C4CA', Orange: '#F08A24', Yellow: '#F2C230', White: '#F4F4EF', Grey: '#8A979D' };
+  var PLACES = ['Canteen', 'Playground', 'Library', 'Bus bay', 'Art room', 'Music room', 'Classroom corridor'];
+  var CODE_CHARS = '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
+
+  var db = null, assets = null;
+  var state = { items: [], loaded: false, q: '', type: 'all', kind: 'all', hideDone: true, onlyPhoto: false,
+    isStaff: false, canWrite: true, uid: null, claimId: null, pending: null, pendingUrl: null, busy: false };
+
+  function $(s, r) { return (r || document).querySelector(s); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function pad(n, w) { n = String(n); while (n.length < w) n = '0' + n; return n; }
+  function isoDay(offset) { var d = new Date(); d.setDate(d.getDate() - (offset || 0)); return d.getFullYear() + '-' + pad(d.getMonth() + 1, 2) + '-' + pad(d.getDate(), 2); }
+  function fmtDate(iso) { var d = new Date(iso + 'T00:00:00'); return isNaN(d) ? iso : d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }); }
+  function noun(i) { return i.specify ? i.specify.charAt(0).toLowerCase() + i.specify.slice(1) : TYPES[i.type]; }
+  function title(i) { return i.color + ' ' + (i.brand ? i.brand + ' ' : '') + noun(i); }
+  function photoSrc(i) { return i.photoId ? '/_blob/' + i.photoId : (i.photo || ''); }
+  function uniqueCode() {
+    var taken = {}; state.items.forEach(function (i) { taken[i.id] = 1; });
+    for (var n = 0; n < 20; n++) {
+      var s = '', buf = new Uint8Array(4);
+      if (window.crypto && crypto.getRandomValues) crypto.getRandomValues(buf); else for (var k = 0; k < 4; k++) buf[k] = Math.floor(Math.random() * 256);
+      for (var j = 0; j < 4; j++) s += CODE_CHARS.charAt(buf[j] % CODE_CHARS.length);
+      if (!taken['FI-' + s]) return s;
+    }
+    return String(Date.now()).slice(-6);
+  }
+
+  /* icons */
+  function icon(type, color) {
+    var c = COLORS[color] || '#8A979D';
+    var st = 'stroke="currentColor" stroke-opacity=".55" stroke-width="1.6" stroke-linejoin="round"';
+    var body = '';
+    var vb = '0 0 64 64';
+    if (type === 'bottle') {
+      vb = '0 0 48 64';
+      body = '<rect x="17" y="2" width="14" height="9" rx="2.5" fill="currentColor" fill-opacity=".35" ' + st + '/><path d="M17 12h14v5c6 3 9 8 9 15v24a6 6 0 0 1-6 6H14a6 6 0 0 1-6-6V32c0-7 3-12 9-15z" fill="' + c + '" ' + st + '/><path d="M15 34v18" stroke="#fff" stroke-opacity=".55" stroke-width="3" stroke-linecap="round"/>';
+    } else if (type === 'lunch') {
+      body = '<path d="M22 16v-4a4 4 0 0 1 4-4h12a4 4 0 0 1 4 4v4" fill="none" ' + st + '/><rect x="5" y="16" width="54" height="38" rx="7" fill="' + c + '" ' + st + '/><rect x="5" y="30" width="54" height="4" fill="#fff" fill-opacity=".45"/><rect x="28" y="27" width="8" height="10" rx="2" fill="#fff" fill-opacity=".8" ' + st + '/>';
+    } else if (type === 'clothes') {
+      body = '<path d="M22 6L4 16l7 14 9-4v34h24V26l9 4 7-14L42 6c-2 5-6 8-10 8s-8-3-10-8z" fill="' + c + '" ' + st + '/>';
+    } else if (type === 'idcard') {
+      body = '<rect x="4" y="12" width="56" height="40" rx="7" fill="' + c + '" ' + st + '/><circle cx="21" cy="29" r="6.5" fill="#fff" fill-opacity=".85"/><path d="M11 46c1-7 5-9 10-9s9 2 10 9z" fill="#fff" fill-opacity=".85"/><path d="M38 25h16M38 32h16M38 39h10" stroke="#fff" stroke-opacity=".8" stroke-width="3" stroke-linecap="round"/><rect x="26" y="6" width="12" height="8" rx="3" fill="none" ' + st + '/>';
+    } else if (type === 'stationery') {
+      body = '<rect x="3" y="18" width="58" height="30" rx="15" fill="' + c + '" ' + st + '/><path d="M14 33h36" stroke="#fff" stroke-opacity=".7" stroke-width="3" stroke-dasharray="3 5" stroke-linecap="round"/>';
+    } else {
+      body = '<path d="M22 12v-2a6 6 0 0 1 6-6h8a6 6 0 0 1 6 6v2" fill="none" ' + st + '/><rect x="10" y="12" width="44" height="46" rx="14" fill="' + c + '" ' + st + '/><rect x="19" y="38" width="26" height="14" rx="5" fill="#fff" fill-opacity=".45" ' + st + '/>';
+    }
+    return '<svg class="ico" viewBox="' + vb + '" role="img" aria-label="' + esc(color + ' ' + TYPES[type]) + '">' + body + '</svg>';
+  }
+  function visual(i) { var s = photoSrc(i); return s ? '<img class="thumb" src="' + esc(s) + '" alt="Photo of ' + esc(title(i)) + '">' : icon(i.type, i.color); }
+  function photoBlock(i) {
+    var s = photoSrc(i);
+    return s ? '<button type="button" class="photo-btn" data-photo="' + esc(i.id) + '" aria-label="View larger photo of ' + esc(title(i)) + '"><img class="photo" src="' + esc(s) + '" alt="Photo of ' + esc(title(i)) + '" loading="lazy"></button>' : '';
+  }
+
+  /* messages */
+  var toastTimer;
+  function toast(msg) {
+    var t = $('#toast'); t.textContent = msg; t.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, 3600);
+  }
+  function setBanner(msg) { $('#bannerText').textContent = msg || ''; $('#banner').hidden = !msg; }
+  function showStatus(msg) { $('#submitStatus').textContent = msg || ''; }
+  function applyWriteState() {
+    var cn = $('#connNote');
+    if (!state.checked) cn.textContent = 'Board status: connecting…';
+    else if (!db) cn.textContent = 'Board status: not connected. Open FindIt from its claude.ai link while signed in to your school account.';
+    else if (!state.canWrite) cn.textContent = 'Board status: connected, view only.';
+    else cn.textContent = 'Board status: connected. You can add items.';
+    var btn = $('#submitBtn'), note = $('#writeNote');
+    btn.disabled = !state.canWrite || state.busy;
+    if (!state.canWrite) { note.hidden = false; note.textContent = 'You can look at the board but not add to it. Ask your teacher to give you contributor access.'; }
+    else note.hidden = true;
+  }
+  function writeFailed(e) {
+    var code = e && e.code;
+    showStatus('Could not save' + (code ? ' (reason: ' + code + ')' : '') + (e && e.message ? '. ' + String(e.message).slice(0, 140) : '.'));
+    if (code === 'quota_exceeded') toast('The board is full. Ask a teacher to remove old items.');
+    else if (code === 'invalid_argument') { state.canWrite = false; applyWriteState(); renderGrid(); toast('You do not have permission to change the board.'); }
+    else if (code === 'resource_exhausted') toast('Too many changes at once. Wait a moment and try again.');
+    else toast('That did not save. Check your connection and try again.');
+  }
+
+  /* render */
+  function filtered() {
+    var q = state.q.trim().toLowerCase();
+    return state.items.filter(function (i) {
+      if (state.hideDone && i.status === 'returned') return false;
+      if (state.onlyPhoto && !photoSrc(i)) return false;
+      if (state.type !== 'all' && i.type !== state.type) return false;
+      if (state.kind !== 'all' && i.kind !== state.kind) return false;
+      if (q) {
+        var hay = [i.id, i.color, i.brand, TYPES[i.type], i.specify, i.desc, i.place].join(' ').toLowerCase();
+        return q.split(/\s+/).every(function (w) { return hay.indexOf(w) !== -1; });
+      }
+      return true;
+    }).sort(newestFirst);
+  }
+  function newestFirst(a, b) {
+    if (a.date !== b.date) return a.date < b.date ? 1 : -1;
+    return (b.at || 0) - (a.at || 0);
+  }
+
+  function renderStats() {
+    var found = 0, lost = 0, back = 0;
+    state.items.forEach(function (i) {
+      if (i.status === 'returned') back++;
+      else if (i.kind === 'found') found++;
+      else lost++;
+    });
+    $('#stats').innerHTML =
+      '<div class="stat"><b>' + found + '</b><span>found items waiting</span></div>' +
+      '<div class="stat"><b>' + lost + '</b><span>open lost reports</span></div>' +
+      '<div class="stat"><b>' + back + '</b><span>returned to owners</span></div>' +
+      '<div class="stat"><b>' + state.items.length + '</b><span>reports in total</span></div>';
+  }
+
+  function renderJustFound() {
+    var ul = $('#justFound');
+    if (!state.loaded) { ul.innerHTML = '<li class="none">Loading the board…</li>'; return; }
+    var list = state.items.filter(function (i) { return i.kind === 'found' && i.status === 'open'; }).sort(newestFirst).slice(0, 4);
+    if (!list.length) { ul.innerHTML = '<li class="none">Nothing found yet. If you find something, report it below so its owner can see it here.</li>'; return; }
+    ul.innerHTML = list.map(function (i) {
+      return '<li><button type="button" data-jump="' + esc(i.id) + '">' + visual(i) +
+        '<span><span class="t">' + esc(title(i)) + '</span><br><span class="m">' + esc(i.place) + ' · ' + esc(fmtDate(i.date)) + '</span></span></button></li>';
+    }).join('');
+  }
+
+  function renderChips() {
+    var keys = ['all', 'bottle', 'lunch', 'clothes', 'stationery', 'idcard', 'other'];
+    $('#chips').innerHTML = keys.map(function (k) {
+      return '<button class="chip" type="button" data-type="' + k + '" aria-pressed="' + (state.type === k) + '">' + CHIP_LABEL[k] + '</button>';
+    }).join('');
+  }
+
+  function cardHtml(i) {
+    var found = i.kind === 'found';
+    var mine = !!(state.uid && i.by === state.uid);
+    var pill = '';
+    if (i.status === 'claimed') pill = '<span class="pill pending">Claim pending</span>';
+    else if (i.status === 'returned') pill = '<span class="pill ret">Returned</span>';
+    if (mine) pill += ' <span class="pill">Your report</span>';
+    var facts = '<dl class="facts">' +
+      '<div><dt>' + (found ? 'Found at' : 'Last seen') + '</dt><dd>' + esc(i.place) + '</dd></div>' +
+      '<div><dt>Date</dt><dd>' + esc(fmtDate(i.date)) + '</dd></div>' +
+      '<div><dt>' + (found ? 'Found by' : 'Lost by') + '</dt><dd>' + esc(i.who) + ', ' + esc(i.grade) + '</dd></div></dl>';
+    var acts = '', staff = '';
+    if (i.status === 'open' && state.canWrite) {
+      acts += found
+        ? '<button class="btn small primary" type="button" data-act="claim" data-id="' + esc(i.id) + '">This is mine</button>'
+        : '<button class="btn small" type="button" data-act="seen" data-id="' + esc(i.id) + '">I found this</button>';
+    }
+    if (state.isStaff) {
+      if (i.claim) staff += '<div class="staffbox"><b>Claim by ' + esc(i.claim.who) + ', ' + esc(i.claim.grade) + '</b><br>Detail given: ' + esc(i.claim.detail) + '</div>';
+      if (i.status !== 'returned') acts += '<button class="btn small" type="button" data-act="return" data-id="' + esc(i.id) + '">Mark returned</button>';
+      acts += '<button class="btn small danger" type="button" data-act="remove" data-id="' + esc(i.id) + '">Remove</button>';
+    } else if (mine && state.canWrite) {
+      acts += '<button class="btn small danger" type="button" data-act="remove" data-id="' + esc(i.id) + '">Withdraw my report</button>';
+    }
+    return '<article class="tag' + (i.status === 'returned' ? ' done' : '') + '" id="item-' + esc(i.id) + '">' +
+      '<div class="tag-top"><span class="tid">' + esc(i.id) + '</span><span class="stamp ' + i.kind + '">' + (found ? 'Found' : 'Lost') + '</span></div>' +
+      photoBlock(i) +
+      '<div class="tag-main">' + icon(i.type, i.color) + '<div><h3>' + esc(title(i)) + '</h3><div>' + pill + '</div></div></div>' +
+      '<p>' + esc(i.desc) + '</p>' + facts + staff + (acts ? '<div class="acts">' + acts + '</div>' : '') + '</article>';
+  }
+
+  function renderGrid() {
+    var grid = $('#grid');
+    if (!state.loaded) { $('#count').textContent = ''; grid.innerHTML = '<div class="empty">Loading the board…</div>'; return; }
+    var list = filtered();
+    $('#count').textContent = list.length + (list.length === 1 ? ' item' : ' items') + ' on the board';
+    if (list.length) { grid.innerHTML = list.map(cardHtml).join(''); return; }
+    grid.innerHTML = state.items.length
+      ? '<div class="empty"><b>Nothing matches.</b><br>Try fewer words, another type, or turn off the filters.</div>'
+      : '<div class="empty"><b>The board is empty.</b><br>Nothing has been reported yet. Use the form below to add the first lost or found item.</div>';
+  }
+
+  function renderAll() { renderStats(); renderJustFound(); renderChips(); renderGrid(); }
+
+  /* matching */
+  function matches(item) {
+    var want = item.kind === 'lost' ? 'found' : 'lost';
+    return state.items.filter(function (o) { return o.kind === want && o.status === 'open' && o.type === item.type && o.id !== item.id; })
+      .map(function (o) {
+        var s = 1;
+        if (o.color === item.color) s += 3;
+        if (o.place === item.place) s += 1;
+        if (item.brand && o.brand && o.brand.toLowerCase() === item.brand.toLowerCase()) s += 2;
+        if (item.specify && o.specify && o.specify.toLowerCase() === item.specify.toLowerCase()) s += 2;
+        return { o: o, s: s };
+      }).filter(function (m) { return m.s >= 4; })
+      .sort(function (a, b) { return b.s - a.s; }).slice(0, 3);
+  }
+
+  function showResult(item) {
+    var ms = matches(item);
+    var r = $('#result');
+    var html = '<h3>Added to the board</h3><p>Your tag ID is <span class="tid">' + esc(item.id) + '</span>. ' +
+      (item.kind === 'found' ? 'Please hand the item to the Front Office and show this ID.' : 'Check back each morning to see if it turns up.') + '</p>';
+    if (ms.length) {
+      html += '<p class="lbl" style="margin:0">Possible matches</p>' + ms.map(function (m) {
+        return '<div class="match">' + visual(m.o) + '<span><span class="t">' + esc(title(m.o)) + '</span><br><span class="m">' + esc(m.o.place) + ' · ' + esc(fmtDate(m.o.date)) + '</span></span>' +
+          '<button class="btn small" type="button" data-jump="' + esc(m.o.id) + '">View</button></div>';
+      }).join('');
+    } else {
+      html += '<p>No matches yet. Check the board again soon.</p>';
+    }
+    r.innerHTML = html; r.className = 'result'; r.hidden = false;
+  }
+
+  /* form */
+  function fillSelects() {
+    $('#f-color').innerHTML = Object.keys(COLORS).map(function (c) { return '<option>' + c + '</option>'; }).join('');
+    $('#f-place').innerHTML = PLACES.map(function (p) { return '<option>' + p + '</option>'; }).join('');
+    var d = $('#f-date'); d.value = isoDay(0); d.max = isoDay(0);
+  }
+  function setErr(inputId, errId, msg) {
+    var el = $('#' + inputId); var er = $('#' + errId);
+    if (el) el.setAttribute('aria-invalid', msg ? 'true' : 'false');
+    if (er) er.textContent = msg || '';
+    return !msg;
+  }
+  function validGrade(v) { return /^\d{1,2}[A-Za-z]?$/.test(v.trim()) || /^staff$/i.test(v.trim()); }
+  function validName(v) { return v.trim().length >= 2; }
+  function updateKindLabels() { $('#placeLbl').textContent = $('#rk-lost').checked ? 'Where did you last have it?' : 'Where did you find it?'; }
+  function updateTypeFields() {
+    var t = $('#f-type').value;
+    $('#specWrap').hidden = t !== 'other';
+    $('#cardWrap').hidden = t !== 'idcard';
+    if (t !== 'other') setErr('f-spec', 'e-spec', '');
+  }
+
+  /* photos */
+  function resizePhoto(file) {
+    return new Promise(function (resolve, reject) {
+      if (!file || !/^image\//.test(file.type)) { reject(new Error('Choose an image file.')); return; }
+      var url = URL.createObjectURL(file), img = new Image();
+      img.onload = function () {
+        var max = 720, s = Math.min(1, max / Math.max(img.width, img.height));
+        var c = document.createElement('canvas');
+        c.width = Math.max(1, Math.round(img.width * s)); c.height = Math.max(1, Math.round(img.height * s));
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        c.toBlob(function (b) { b ? resolve(b) : reject(new Error('This photo could not be prepared. Try another one.')); }, 'image/jpeg', 0.78);
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('This photo could not be opened. Try a JPG or PNG.')); };
+      img.src = url;
+    });
+  }
+  function blobToDataUrl(b) {
+    return new Promise(function (resolve, reject) { var r = new FileReader(); r.onload = function () { resolve(r.result); }; r.onerror = reject; r.readAsDataURL(b); });
+  }
+  function setPhoto(blob) {
+    if (state.pendingUrl) { URL.revokeObjectURL(state.pendingUrl); state.pendingUrl = null; }
+    state.pending = blob;
+    $('#e-photo').textContent = '';
+    $('#photoPrev').hidden = !blob;
+    if (blob) { state.pendingUrl = URL.createObjectURL(blob); $('#photoImg').src = state.pendingUrl; }
+    else $('#photoImg').removeAttribute('src');
+  }
+  function onPickPhoto(e) {
+    var f = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!f) return;
+    resizePhoto(f).then(setPhoto).catch(function (err) { $('#e-photo').textContent = err.message; });
+  }
+  function openPhoto(id) {
+    var it = state.items.filter(function (i) { return i.id === id; })[0]; if (!it || !photoSrc(it)) return;
+    $('#lbImg').src = photoSrc(it); $('#lbImg').alt = 'Photo of ' + title(it);
+    $('#lb-cap').textContent = it.id + ' · ' + title(it);
+    var d = $('#photoDlg');
+    if (d.showModal) d.showModal(); else d.setAttribute('open', '');
+  }
+  function closePhoto() { var d = $('#photoDlg'); if (d.close) d.close(); else d.removeAttribute('open'); }
+  function dropAsset(item) {
+    if (assets && item && item.photoId) { try { assets.delete(item.photoId).catch(function () {}); } catch (e) {} }
+  }
+
+  async function submitReport(e) {
+    e.preventDefault();
+    if (state.busy) return;
+    showStatus('');
+    if (!db || !state.canWrite) {
+      showStatus(!db ? 'The shared board is not connected, so nothing can be saved. Open FindIt from its claude.ai link while signed in to your school account.' : 'Your account can look at the board but not add to it. Ask your teacher for contributor access.');
+      return;
+    }
+    var desc = $('#f-desc').value.trim(), who = $('#f-who').value, grade = $('#f-grade').value, date = $('#f-date').value;
+    var ok = true;
+    ok = setErr('f-desc', 'e-desc', desc.length < 8 ? 'Add a few words so others can recognise it.' : '') && ok;
+    ok = setErr('f-who', 'e-who', validName(who) ? '' : 'Enter your first name.') && ok;
+    ok = setErr('f-grade', 'e-grade', validGrade(grade) ? '' : 'Use your class, like 5B.') && ok;
+    ok = setErr('f-date', 'e-date', (!date || date > isoDay(0)) ? 'Pick today or an earlier date.' : '') && ok;
+    var type = $('#f-type').value, spec = $('#f-spec').value.trim();
+    ok = setErr('f-spec', 'e-spec', (type === 'other' && spec.length < 2) ? 'Say what the item is, for example calculator or hat.' : '') && ok;
+    if (!ok) { var bad = $('#form [aria-invalid="true"]'); if (bad) bad.focus(); return; }
+
+    state.busy = true; applyWriteState(); $('#submitBtn').textContent = 'Saving…';
+    var id = 'FI-' + uniqueCode();
+    var data = {
+      kind: $('#rk-found').checked ? 'found' : 'lost', type: $('#f-type').value, color: $('#f-color').value,
+      brand: $('#f-brand').value.trim(), desc: desc, place: $('#f-place').value, date: date,
+      who: who.trim(), grade: grade.trim().toUpperCase(), status: 'open', at: Date.now()
+    };
+    if (state.uid) data.by = state.uid;
+    if (type === 'other') data.specify = spec; else if (type === 'idcard') data.specify = $('#f-card').value;
+    try {
+      if (state.pending) {
+        var stored = false;
+        if (assets) {
+          try { data.photoId = (await assets.upload(state.pending, { type: 'image/jpeg' })).id; stored = true; } catch (e2) { stored = false; }
+        }
+        if (!stored) data.photo = await blobToDataUrl(state.pending);
+      }
+    } catch (err) {
+      $('#e-photo').textContent = 'The photo could not be saved. Try again, or remove the photo.';
+      state.busy = false; applyWriteState(); $('#submitBtn').textContent = 'Add to the board'; return;
+    }
+    try {
+      await Promise.race([
+        db.doc('items/' + id).set(data),
+        new Promise(function (resolve, reject) { setTimeout(function () { reject({ code: 'timeout', message: 'The board did not answer in time. Check your connection and try again.' }); }, 25000); })
+      ]);
+    } catch (err) {
+      dropAsset(data); writeFailed(err);
+      state.busy = false; applyWriteState(); $('#submitBtn').textContent = 'Add to the board'; return;
+    }
+    var item = Object.assign({ id: id }, data);
+    $('#f-desc').value = ''; $('#f-brand').value = ''; $('#f-spec').value = '';
+    setPhoto(null);
+    showResult(item);
+    toast(item.kind === 'found' ? 'Found item added. Thank you!' : 'Lost report added.');
+    state.busy = false; applyWriteState(); $('#submitBtn').textContent = 'Add to the board';
+    $('#result').scrollIntoView({ block: 'nearest' });
+  }
+
+  /* claim */
+  function findItem(id) { return state.items.filter(function (i) { return i.id === id; })[0]; }
+  function openClaim(id) {
+    var it = findItem(id); if (!it) return;
+    state.claimId = id;
+    $('#cd-item').textContent = it.id + ' · ' + title(it) + ' · found at ' + it.place;
+    $('#claimForm').reset();
+    ['e-cdetail', 'e-cwho', 'e-cgrade'].forEach(function (x) { $('#' + x).textContent = ''; });
+    ['c-detail', 'c-who', 'c-grade'].forEach(function (x) { $('#' + x).setAttribute('aria-invalid', 'false'); });
+    $('#cd-form').hidden = false; $('#cd-ticket').hidden = true;
+    var dlg = $('#claimDlg');
+    if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
+    $('#c-detail').focus();
+  }
+  async function submitClaim(e) {
+    e.preventDefault();
+    if (state.busy) return;
+    var detail = $('#c-detail').value.trim(), who = $('#c-who').value, grade = $('#c-grade').value, ok = true;
+    ok = setErr('c-detail', 'e-cdetail', detail.length < 3 ? 'Describe one detail about the item.' : '') && ok;
+    ok = setErr('c-who', 'e-cwho', validName(who) ? '' : 'Enter your first name.') && ok;
+    ok = setErr('c-grade', 'e-cgrade', validGrade(grade) ? '' : 'Use your class, like 5B.') && ok;
+    if (!ok) return;
+    var it = findItem(state.claimId);
+    if (!it) { closeClaim(); toast('That item is no longer on the board.'); return; }
+    if (it.status !== 'open') { closeClaim(); toast('Someone has already claimed this item.'); return; }
+    state.busy = true; $('#claimBtn').disabled = true;
+    var claim = { detail: detail, who: who.trim(), grade: grade.trim().toUpperCase(), at: Date.now() };
+    if (state.uid) claim.by = state.uid;
+    try {
+      await db.doc('items/' + it.id).update({ status: 'claimed', claim: claim });
+    } catch (err) { writeFailed(err); state.busy = false; $('#claimBtn').disabled = false; return; }
+    state.busy = false; $('#claimBtn').disabled = false;
+    $('#t-code').textContent = 'CL-' + it.id.slice(3);
+    $('#t-item').textContent = title(it) + ' (' + it.id + ')';
+    $('#t-who').textContent = 'Claimed by ' + claim.who + ', ' + claim.grade;
+    $('#cd-form').hidden = true; $('#cd-ticket').hidden = false;
+  }
+  function closeClaim() { var d = $('#claimDlg'); if (d.close) d.close(); else d.removeAttribute('open'); }
+
+  function jumpTo(id) {
+    state.q = id; state.type = 'all'; state.kind = 'all'; state.hideDone = false; state.onlyPhoto = false;
+    $('#q').value = id; $('#kind').value = 'all'; $('#hideDone').checked = false; $('#onlyPhoto').checked = false;
+    renderChips(); renderGrid();
+    $('#browse').scrollIntoView();
+  }
+
+  async function onGridClick(e) {
+    var ph = e.target.closest('[data-photo]'); if (ph) { openPhoto(ph.getAttribute('data-photo')); return; }
+    var b = e.target.closest('[data-act]'); if (!b) return;
+    var id = b.getAttribute('data-id'), act = b.getAttribute('data-act');
+    var it = findItem(id); if (!it) return;
+    if (act === 'claim') { openClaim(id); return; }
+    if (act === 'seen') {
+      $('#rk-found').checked = true; updateKindLabels();
+      $('#f-type').value = it.type; $('#f-color').value = it.color; $('#f-brand').value = it.brand || '';
+      updateTypeFields();
+      if (it.type === 'other') $('#f-spec').value = it.specify || '';
+      if (it.type === 'idcard' && it.specify) $('#f-card').value = it.specify;
+      $('#report').scrollIntoView(); $('#f-desc').focus();
+      toast('Form filled in. Add where you found it.');
+      return;
+    }
+    if (!db) return;
+    try {
+      if (act === 'return') {
+        await db.doc('items/' + id).update({ status: 'returned', returnedAt: Date.now() });
+        toast(id + ' marked as returned.');
+      } else if (act === 'remove') {
+        if (b.getAttribute('data-sure') !== '1') { b.setAttribute('data-sure', '1'); b.textContent = 'Press again to confirm'; return; }
+        await db.doc('items/' + id).delete();
+        dropAsset(it);
+        toast(id + ' removed.');
+      }
+    } catch (err) { writeFailed(err); }
+  }
+
+  /* start-up: render first, then light up shared data */
+  function init() {
+    fillSelects(); updateKindLabels(); updateTypeFields(); applyWriteState(); renderAll();
+    $('#f-type').addEventListener('change', updateTypeFields);
+
+    $('#q').addEventListener('input', function (e) { state.q = e.target.value; renderGrid(); });
+    $('#kind').addEventListener('change', function (e) { state.kind = e.target.value; renderGrid(); });
+    $('#hideDone').addEventListener('change', function (e) { state.hideDone = e.target.checked; renderGrid(); });
+    $('#onlyPhoto').addEventListener('change', function (e) { state.onlyPhoto = e.target.checked; renderGrid(); });
+    $('#chips').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-type]'); if (!b) return;
+      state.type = b.getAttribute('data-type'); renderChips(); renderGrid();
+    });
+    document.addEventListener('click', function (e) {
+      var j = e.target.closest('[data-jump]'); if (j) { jumpTo(j.getAttribute('data-jump')); return; }
+      if (e.target.closest('[data-close]')) closeClaim();
+    });
+    $('#grid').addEventListener('click', onGridClick);
+    $('#form').addEventListener('submit', submitReport);
+    $('#claimForm').addEventListener('submit', submitClaim);
+    document.querySelectorAll('input[name="rk"]').forEach(function (r) { r.addEventListener('change', updateKindLabels); });
+    $('#f-cam').addEventListener('change', onPickPhoto);
+    $('#f-file').addEventListener('change', onPickPhoto);
+    $('#photoClear').addEventListener('click', function () { setPhoto(null); });
+    document.querySelector('[data-close-photo]').addEventListener('click', closePhoto);
+    $('#photoDlg').addEventListener('click', function (e) { if (e.target === this) closePhoto(); });
+
+    window.addEventListener('unhandledrejection', function (ev) {
+      var r = ev.reason; showStatus('Something went wrong' + (r && r.code ? ' (reason: ' + r.code + ')' : '') + '. Reload the page and try again.');
+    });
+    if (!window.claude || !window.claude.use) {
+      state.loaded = true; state.checked = true; state.canWrite = false; applyWriteState();
+      setBanner('Open FindIt from your school Claude account to see the shared board.'); renderAll(); return;
+    }
+    Promise.all([claude.use('db'), claude.use('user'), claude.use('assets')]).then(function (r) {
+      db = r[0]; assets = r[2];
+      var user = r[1];
+      var who = user ? Promise.all([user.id(), user.canEdit(), user.can('data.write')]) : Promise.resolve([null, false, null]);
+      return who.then(function (w) {
+        state.uid = w[0]; state.isStaff = !!w[1];
+        state.checked = true;
+        state.canWrite = !!db && w[2] !== false;
+        $('#staffBadge').hidden = !state.isStaff;
+        applyWriteState();
+        if (!db) {
+          state.loaded = true; state.canWrite = false; applyWriteState();
+          setBanner('Sign in with your school account to see and add items. Ask your teacher if you cannot open this page.');
+          renderAll(); return;
+        }
+        if (!state.canWrite) setBanner('You can look at the board but not add to it. Ask your teacher for contributor access.');
+        db.collection('items').onSnapshot(function (snap) {
+          state.items = snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); });
+          state.loaded = true; renderAll();
+        }, function () {
+          state.loaded = true; setBanner('The board could not be loaded. Reload the page to try again.'); renderAll();
+        });
+      });
+    }).catch(function () {
+      state.loaded = true; state.checked = true; applyWriteState(); setBanner('The board could not be loaded. Reload the page to try again.'); renderAll();
+    });
+  }
+  init();
+})();
+</script>
+
+</body></html>
